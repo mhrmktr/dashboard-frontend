@@ -1,7 +1,7 @@
-// Deine Backend-URL (HIER ANPASSEN!)
-const BASE_URL = "https://DEINE-RENDER-URL.onrender.com";
+// Deine Backend-URL (HIER ANPASSEN)
+const BASE_URL = "https://personal-dashboard-backend-d8xz.onrender.com";
 
-// Kleine Hilfsfunktion, um API Requests zu machen
+// Kleiner Helper für API Requests
 async function fetchData(endpoint) {
   try {
     const response = await fetch(`${BASE_URL}${endpoint}`);
@@ -11,14 +11,14 @@ async function fetchData(endpoint) {
   }
 }
 
-// ----- Heizöl abrufen -----
+// --- Heizöl ---
 async function loadHeizoel() {
   const data = await fetchData("/api/heizoel");
   document.querySelector("#heizoel .value").innerText =
     data.price ? `${data.price}` : "Keine Daten";
 }
 
-// ----- FX abrufen -----
+// --- FX ---
 async function loadFX() {
   const data = await fetchData("/api/fx");
   if (data.USD && data.TRY) {
@@ -29,27 +29,26 @@ async function loadFX() {
   }
 }
 
-// ----- Wetter abrufen -----
+// --- Wetter ---
 async function loadWeather() {
   const city = document.getElementById("cityInput").value;
   const data = await fetchData(`/api/weather?city=${city}`);
   const el = document.querySelector("#weather .value");
 
   if (data.main) {
-    el.innerText = `${data.main.temp}°C, ${data.weather[0].description}`;
+    el.innerText = `${data.main.temp}°C – ${data.weather[0].description}`;
   } else {
     el.innerText = "Keine Daten";
   }
 }
 
-// ----- Initial laden -----
+// Erste Daten laden
 loadHeizoel();
 loadFX();
 loadWeather();
 
-// ----- Automatisches Refresh alle 5 Minuten -----
+// Regelmäßige Aktualisierung
 setInterval(() => {
   loadHeizoel();
   loadFX();
 }, 5 * 60 * 1000);
-``

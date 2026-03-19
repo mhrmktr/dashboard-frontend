@@ -1,118 +1,99 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Persönliches Dashboard</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
+const BASE_URL = "https://personal-dashboard-backend-m5ur.onrender.com";
 
-<header>
-  <h1><span class="pulse"></span> Persönliches Dashboard</h1>
-  <div class="header-right">
-    <span id="updateTime">Wird geladen...</span>
-    <button class="refresh-btn" onclick="refreshAll()">
-      <span id="refreshIcon">↻</span> Aktualisieren
-    </button>
-  </div>
-</header>
+function setVal(id, html) {
+  var el = document.getElementById(id);
+  if (el) { el.classList.remove("skeleton"); el.innerHTML = html; }
+}
 
-<div class="section-title">Marktdaten</div>
-<div class="grid">
+function setBadge(id, text, cls) {
+  var el = document.getElementById(id);
+  if (el) { el.textContent = text; el.className = "badge " + cls; }
+}
 
-  <div class="card orange">
-    <div class="card-header">
-      <div class="card-title">🛢️ Heizölpreis</div>
-      <span class="badge loading" id="badge-heizoel">Lädt...</span>
-    </div>
-    <div id="heizoel-main" class="skeleton"></div>
-    <div id="heizoel-sub" class="sub-value"></div>
-  </div>
+function getTime() {
+  return new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+}
 
-  <div class="card blue">
-    <div class="card-header">
-      <div class="card-title">💱 EUR / USD</div>
-      <span class="badge loading" id="badge-usd">Lädt...</span>
-    </div>
-    <div id="usd-main" class="skeleton"></div>
-    <div id="usd-sub" class="sub-value"></div>
-  </div>
+function apiFetch(path) {
+  return fetch(BASE_URL + path).then(function(r) {
+    if (!r.ok) throw new Error(r.status);
+    return r.json();
+  });
+}
 
-  <div class="card purple">
-    <div class="card-header">
-      <div class="card-title">🇹🇷 EUR / TRY</div>
-      <span class="badge loading" id="badge-try">Lädt...</span>
-    </div>
-    <div id="try-main" class="skeleton"></div>
-    <div id="try-sub" class="sub-value"></div>
-  </div>
+function loadHeizoel() {
+  apiFetch("/api/heizoel").then(function(d) {
+    setVal("heizoel-main", '<div class="main-value">' + (d.price || "-") + '</div>');
+    setVal("heizoel-sub", '<span>pro 100 Liter</span>');
+    setBadge("badge-heizoel", "Live", "live");
+  }).catch(function() {
+    setVal("heizoel-main", '<div class="main-value" style="color:#f85149;font-size:1em">Fehler</div>');
+    setBadge("badge-heizoel", "Fehler", "error");
+  });
+}
 
-</div>
+function loadFX() {
+  apiFetch("/api/fx").then(function(d) {
+    var usd = d.USD || "-";
+    var tr = d.TRY || "-";
+    setVal("usd-main", '<div class="main-value">' + usd + '</div>');
+    setVal("usd-sub", '1 EUR = ' + usd + ' USD');
+    setBadge("badge-usd", "Live", "live");
+    setVal("try-main", '<div class="main-value">' + tr + '</div>');
+    setVal("try-sub", '1 EUR = ' + tr + ' TRY');
+    setBadge("badge-try", "Live", "live");
+  }).catch(function() {
+    setVal("usd-main", '<div class="main-value" style="color:#f85149;font-size:1em">Fehler</div>');
+    setVal("try-main", '<div class="main-value" style="color:#f85149;font-size:1em">Fehler</div>');
+    setBadge("badge-usd", "Fehler", "error");
+    setBadge("badge-try", "Fehler", "error");
+  });
+}
 
-<div class="section-title">Wetter</div>
-<div class="grid">
+var icons = {
+  "Clear": "☀️", "Clouds": "☁️", "Rain": "🌧️",
+  "Drizzle": "🌦️", "Thunderstorm": "⛈️", "Snow": "❄️",
+  "Mist": "🌫️", "Fog": "🌫️", "Haze": "🌫️"
+};
 
-  <div class="card green">
-    <div class="card-header">
-      <div class="card-title">🗽 Jersey City</div>
-      <span class="badge loading" id="badge-jc">Lädt...</span>
-    </div>
-    <div class="weather-row">
-      <div class="weather-icon" id="icon-jc">⏳</div>
-      <div>
-        <div id="temp-jc" class="skeleton"></div>
-        <div id="sub-jc" class="sub-value"></div>
-      </div>
-    </div>
-  </div>
+function renderWeather(prefix, data) {
+  var temp = data.temp !== null ? data.temp + " C" : "-";
+  var feels = data.feels_like !== null ? data.feels_like + " C" : "-";
+  var humidity = data.humidity || "-";
+  var desc = data.description || "";
+  var icon = icons[data.main] || "🌡️";
+  document.getElementById("icon-" + prefix).textContent = icon;
+  setVal("temp-" + prefix, '<div class="main-value">' + temp + '</div>');
+  setVal("sub-" + prefix, desc + ' · Gefühlt ' + feels + ' · ' + humidity + '% Luftfeuchtigkeit');
+  setBadge("badge-" + prefix, "Live", "live");
+}
 
-  <div class="card green">
-    <div class="card-header">
-      <div class="card-title">🗽 New York City</div>
-      <span class="badge loading" id="badge-nyc">Lädt...</span>
-    </div>
-    <div class="weather-row">
-      <div class="weather-icon" id="icon-nyc">⏳</div>
-      <div>
-        <div id="temp-nyc" class="skeleton"></div>
-        <div id="sub-nyc" class="sub-value"></div>
-      </div>
-    </div>
-  </div>
+function loadWeather() {
+  apiFetch("/api/weather/all").then(function(d) {
+    if (d["Jersey City"])   renderWeather("jc",  d["Jersey City"]);
+    if (d["New York City"]) renderWeather("nyc", d["New York City"]);
+    if (d["Wiesbaden"])     renderWeather("wi",  d["Wiesbaden"]);
+    if (d["Mainz"])         renderWeather("mz",  d["Mainz"]);
+  }).catch(function() {
+    ["jc","nyc","wi","mz"].forEach(function(p) {
+      setVal("temp-" + p, '<div class="main-value" style="color:#f85149;font-size:1em">Fehler</div>');
+      setBadge("badge-" + p, "Fehler", "error");
+    });
+  });
+}
 
-  <div class="card teal">
-    <div class="card-header">
-      <div class="card-title">🇩🇪 Wiesbaden</div>
-      <span class="badge loading" id="badge-wi">Lädt...</span>
-    </div>
-    <div class="weather-row">
-      <div class="weather-icon" id="icon-wi">⏳</div>
-      <div>
-        <div id="temp-wi" class="skeleton"></div>
-        <div id="sub-wi" class="sub-value"></div>
-      </div>
-    </div>
-  </div>
+function refreshAll() {
+  var icon = document.getElementById("refreshIcon");
+  if (icon) icon.classList.add("spinning");
+  loadHeizoel();
+  loadFX();
+  loadWeather();
+  setTimeout(function() {
+    if (icon) icon.classList.remove("spinning");
+    var t = document.getElementById("updateTime");
+    if (t) t.textContent = "Zuletzt: " + getTime() + " Uhr";
+  }, 3000);
+}
 
-  <div class="card teal">
-    <div class="card-header">
-      <div class="card-title">🇩🇪 Mainz</div>
-      <span class="badge loading" id="badge-mz">Lädt...</span>
-    </div>
-    <div class="weather-row">
-      <div class="weather-icon" id="icon-mz">⏳</div>
-      <div>
-        <div id="temp-mz" class="skeleton"></div>
-        <div id="sub-mz" class="sub-value"></div>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<div class="footer">Daten via Render.com Backend · Auto-Refresh alle 5 Min · Kostenloses Setup</div>
-
-<script src="script.js"></script>
-</body>
-</html>
+refreshAll();
+setInterval(refreshAll, 5 * 60 * 1000);

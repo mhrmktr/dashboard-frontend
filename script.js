@@ -1,20 +1,25 @@
-const BASE_URL = "https://DEINE-RENDER-URL.onrender.com";  // ← hier ersetzen!
+// ✅ Deine echte API-URL von Render
+const BASE_URL = "https://personal-dashboard-backend-d8xz.onrender.com";
 
+// ✅ Helper für API Calls
 async function fetchData(endpoint) {
   try {
     const response = await fetch(`${BASE_URL}${endpoint}`);
     return await response.json();
   } catch (err) {
+    console.log(err);
     return { error: "Fehler beim Abruf" };
   }
 }
 
+// ✅ Heizöl abrufen
 async function loadHeizoel() {
   const data = await fetchData("/api/heizoel");
   document.querySelector("#heizoel .value").innerText =
-    data.price ? `${data.price}` : "Keine Daten";
+    data.price ? data.price : "Keine Daten";
 }
 
+// ✅ FX abrufen
 async function loadFX() {
   const data = await fetchData("/api/fx");
   if (data.USD && data.TRY) {
@@ -25,6 +30,7 @@ async function loadFX() {
   }
 }
 
+// ✅ Wetter abrufen
 async function loadWeather() {
   const city = document.getElementById("cityInput").value;
   const data = await fetchData(`/api/weather?city=${city}`);
@@ -37,11 +43,14 @@ async function loadWeather() {
   }
 }
 
+// ✅ Erste Daten laden
 loadHeizoel();
 loadFX();
 loadWeather();
 
+// ✅ Alle 5 Minuten aktualisieren
 setInterval(() => {
   loadHeizoel();
   loadFX();
 }, 5 * 60 * 1000);
+``

@@ -1,7 +1,5 @@
-// Deine Backend-URL (HIER ANPASSEN)
-const BASE_URL = "https://personal-dashboard-backend-d8xz.onrender.com";
+const BASE_URL = "https://DEINE-RENDER-URL.onrender.com";  // ← hier ersetzen!
 
-// Kleiner Helper für API Requests
 async function fetchData(endpoint) {
   try {
     const response = await fetch(`${BASE_URL}${endpoint}`);
@@ -11,14 +9,12 @@ async function fetchData(endpoint) {
   }
 }
 
-// --- Heizöl ---
 async function loadHeizoel() {
   const data = await fetchData("/api/heizoel");
   document.querySelector("#heizoel .value").innerText =
     data.price ? `${data.price}` : "Keine Daten";
 }
 
-// --- FX ---
 async function loadFX() {
   const data = await fetchData("/api/fx");
   if (data.USD && data.TRY) {
@@ -29,7 +25,6 @@ async function loadFX() {
   }
 }
 
-// --- Wetter ---
 async function loadWeather() {
   const city = document.getElementById("cityInput").value;
   const data = await fetchData(`/api/weather?city=${city}`);
@@ -42,12 +37,10 @@ async function loadWeather() {
   }
 }
 
-// Erste Daten laden
 loadHeizoel();
 loadFX();
 loadWeather();
 
-// Regelmäßige Aktualisierung
 setInterval(() => {
   loadHeizoel();
   loadFX();

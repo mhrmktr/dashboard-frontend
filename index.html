@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Persönliches Dashboard</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
 
 <h1>📊 Persönliches Dashboard</h1>
@@ -23,3 +24,13 @@
 
   <div class="card" id="weather">
     <h2>Wetter</h2>
+    <input id="cityInput" placeholder="Stadt eingeben" value="Berlin">
+    <button onclick="loadWeather()">Aktualisieren</button>
+    <p class="value">Lade...</p>
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

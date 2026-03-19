@@ -1,151 +1,177 @@
-// ✅ Backend-URL (Render.com)
-const BASE_URL = "https://personal-dashboard-backend-m5ur.onrender.com";
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-// ── Hilfsfunktionen ──────────────────────────────────────────────────────────
-
-function setVal(id, html) {
-  const el = document.getElementById(id);
-  if (el) {
-    el.classList.remove("skeleton");
-    el.innerHTML = html;
-  }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: #0d1117;
+  color: #e6edf3;
+  padding: 24px;
+  min-height: 100vh;
 }
 
-function setBadge(id, text, cls) {
-  const el = document.getElementById(id);
-  if (el) {
-    el.textContent = text;
-    el.className = `badge ${cls}`;
-  }
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #21262d;
 }
 
-function now() {
-  return new Date().toLocaleTimeString("de-DE", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+header h1 {
+  font-size: 1.4em;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-async function apiFetch(path) {
-  const response = await fetch(BASE_URL + path);
-  if (!response.ok) throw new Error(response.status);
-  return response.json();
+.pulse {
+  display: inline-block;
+  width: 10px; height: 10px;
+  background: #3fb950;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
 }
 
-// ── Heizöl ──────────────────────────────────────────────────────────────────
-
-async function loadHeizoel() {
-  try {
-    const d = await apiFetch("/api/heizoel");
-    const price = d.price || "–";
-    setVal("heizoel-main", `<div class="main-value">${price}</div>`);
-    setVal(
-      "heizoel-sub",
-      `<span class="change neutral">pro 100 Liter · Live-Scraping</span>`
-    );
-    setBadge("badge-heizoel", "Live", "live");
-  } catch {
-    setVal(
-      "heizoel-main",
-      `<div class="main-value" style="font-size:1em;color:#f85149">Fehler</div>`
-    );
-    setBadge("badge-heizoel", "Fehler", "error");
-  }
+@keyframes pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(63,185,80,0.4); }
+  50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(63,185,80,0); }
 }
 
-// ── FX-Kurse ─────────────────────────────────────────────────────────────────
-
-async function loadFX() {
-  try {
-    const d = await apiFetch("/api/fx");
-
-    const usd = d.USD ?? d.eurusd ?? "–";
-    const tryVal = d.TRY ?? d.eurtry ?? "–";
-
-    setVal("usd-main", `<div class="main-value">${usd}</div>`);
-    setVal(
-      "usd-sub",
-      `<span class="change neutral">↔ 1 EUR = ${usd} USD</span>`
-    );
-    setBadge("badge-usd", "Live", "live");
-
-    setVal("try-main", `<div class="main-value">${tryVal}</div>`);
-    setVal(
-      "try-sub",
-      `<span class="change neutral">↔ 1 EUR = ${tryVal} TRY</span>`
-    );
-    setBadge("badge-try", "Live", "live");
-  } catch {
-    setVal(
-      "usd-main",
-      `<div class="main-value" style="font-size:1em;color:#f85149">Fehler</div>`
-    );
-    setVal(
-      "try-main",
-      `<div class="main-value" style="font-size:1em;color:#f85149">Fehler</div>`
-    );
-    setBadge("badge-usd", "Fehler", "error");
-    setBadge("badge-try", "Fehler", "error");
-  }
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.75em;
+  color: #6e7681;
 }
 
-// ── Wetter ───────────────────────────────────────────────────────────────────
-
-const weatherIcons = {
-  clear: "☀️",
-  clouds: "☁️",
-  rain: "🌧️",
-  drizzle: "🌦️",
-  thunderstorm: "⛈️",
-  snow: "❄️",
-  mist: "🌫️",
-  fog: "🌫️",
-};
-
-async function loadWeather() {
-  const city =
-    document.getElementById("cityInput").value || "Düsseldorf";
-  try {
-    const d = await apiFetch(`/api/weather?city=${encodeURIComponent(city)}`);
-    const temp = d.main?.temp ?? "–";
-    const desc = d.weather?.[0]?.description ?? "";
-    const feels = d.main?.feels_like ?? "";
-    const humidity = d.main?.humidity ?? "";
-    const main = d.weather?.[0]?.main?.toLowerCase() ?? "";
-    const icon = weatherIcons[main] || "🌡️";
-
-    document.getElementById("weather-icon").textContent = icon;
-    setVal("weather-main", `<div class="main-value">${temp}°C</div>`);
-    setVal(
-      "weather-sub",
-      `<span style="text-transform:capitalize">${desc}</span><br>` +
-        `Gefühlt <b>${feels}°C</b> · Luftfeuchtigkeit <b>${humidity}%</b>`
-    );
-    setBadge("badge-weather", "Live", "live");
-  } catch {
-    document.getElementById("weather-icon").textContent = "❌";
-    setVal(
-      "weather-main",
-      `<div class="main-value" style="font-size:1em;color:#f85149">Fehler</div>`
-    );
-    setBadge("badge-weather", "Fehler", "error");
-  }
+.refresh-btn {
+  background: none;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  color: #7d8590;
+  padding: 5px 12px;
+  font-size: 0.85em;
+  cursor: pointer;
+  transition: all 0.15s;
 }
 
-// ── Alles auf einmal aktualisieren ───────────────────────────────────────────
+.refresh-btn:hover { background: #21262d; color: #e6edf3; }
 
-function refreshAll() {
-  const icon = document.getElementById("refreshIcon");
-  icon.classList.add("spinning");
+.spinning { animation: spin 1s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-  Promise.all([loadHeizoel(), loadFX(), loadWeather()]).finally(() => {
-    icon.classList.remove("spinning");
-    document.getElementById("updateTime").textContent =
-      `Zuletzt: ${now()} Uhr`;
-  });
+.section-title {
+  font-size: 0.75em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6e7681;
+  margin-bottom: 12px;
+  margin-top: 24px;
 }
 
-// ── Start & Auto-Refresh ─────────────────────────────────────────────────────
+.grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
 
-refreshAll();
-setInterval(refreshAll, 5 * 60 * 1000); // alle 5 Minuten
+.card {
+  background: #161b22;
+  border: 1px solid #21262d;
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.card:hover { border-color: #388bfd55; transform: translateY(-2px); }
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: 12px 12px 0 0;
+}
+
+.card.blue::before   { background: linear-gradient(90deg, #388bfd, #1f6feb); }
+.card.green::before  { background: linear-gradient(90deg, #3fb950, #2ea043); }
+.card.orange::before { background: linear-gradient(90deg, #f0883e, #d29922); }
+.card.purple::before { background: linear-gradient(90deg, #bc8cff, #8957e5); }
+.card.teal::before   { background: linear-gradient(90deg, #39d3bb, #1a9e8f); }
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.card-title {
+  font-size: 0.8em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #7d8590;
+}
+
+.badge {
+  font-size: 0.68em;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.badge.live    { background: rgba(63,185,80,0.15); color: #3fb950; }
+.badge.loading { background: rgba(210,153,34,0.15); color: #d29922; animation: blink 1.4s infinite; }
+.badge.error   { background: rgba(248,81,73,0.15); color: #f85149; }
+
+@keyframes blink { 50% { opacity: 0.4; } }
+
+.main-value {
+  font-size: 2em;
+  font-weight: 700;
+  color: #e6edf3;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.sub-value {
+  font-size: 0.82em;
+  color: #7d8590;
+  line-height: 1.6;
+  margin-top: 6px;
+}
+
+.weather-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 4px;
+}
+
+.weather-icon { font-size: 2.6em; line-height: 1; }
+
+.skeleton {
+  height: 2.2em;
+  background: linear-gradient(90deg, #21262d 25%, #30363d 50%, #21262d 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.footer {
+  margin-top: 32px;
+  text-align: center;
+  font-size: 0.72em;
+  color: #3d444d;
+}

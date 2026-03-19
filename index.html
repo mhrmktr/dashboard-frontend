@@ -2,20 +2,80 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <title>Persönliches Dashboard</title>
-  style.css
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📊 Persönliches Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
 
-<h1>📊 Persönliches Dashboard</h1>
+<header>
+  <h1>
+    <span class="pulse"></span>
+    📊 Persönliches Dashboard
+  </h1>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span class="last-update" id="updateTime">Wird geladen…</span>
+    <button class="refresh-btn" onclick="refreshAll()">
+      <span id="refreshIcon">↻</span> Aktualisieren
+    </button>
+  </div>
+</header>
 
 <div class="grid">
 
-  <div class="card" id="heizoel">
-    <h2>Heizölpreis</h2>
-    <p class="value">Lade...</p>
+  <!-- Heizöl -->
+  <div class="card orange">
+    <div class="card-header">
+      <div class="card-title"><span class="icon">🛢️</span> Heizölpreis</div>
+      <span class="badge loading" id="badge-heizoel">Lädt…</span>
+    </div>
+    <div id="heizoel-main" class="skeleton"></div>
+    <div class="sub-value" id="heizoel-sub" style="margin-top:8px;"></div>
   </div>
 
-  <div class="card" id="fx">
-    <h2>FX EUR/USD &
+  <!-- EUR/USD -->
+  <div class="card blue">
+    <div class="card-header">
+      <div class="card-title"><span class="icon">💱</span> EUR / USD</div>
+      <span class="badge loading" id="badge-usd">Lädt…</span>
+    </div>
+    <div id="usd-main" class="skeleton"></div>
+    <div id="usd-sub" class="sub-value" style="margin-top:8px;"></div>
+  </div>
+
+  <!-- EUR/TRY -->
+  <div class="card purple">
+    <div class="card-header">
+      <div class="card-title"><span class="icon">🇹🇷</span> EUR / TRY</div>
+      <span class="badge loading" id="badge-try">Lädt…</span>
+    </div>
+    <div id="try-main" class="skeleton"></div>
+    <div id="try-sub" class="sub-value" style="margin-top:8px;"></div>
+  </div>
+
+  <!-- Wetter -->
+  <div class="card green">
+    <div class="card-header">
+      <div class="card-title"><span class="icon">🌤️</span> Wetter</div>
+      <span class="badge loading" id="badge-weather">Lädt…</span>
+    </div>
+    <div class="weather-row">
+      <div class="weather-icon" id="weather-icon">⏳</div>
+      <div class="weather-details">
+        <div id="weather-main" class="skeleton"></div>
+        <div class="sub-value" id="weather-sub" style="margin-top:6px;"></div>
+      </div>
+    </div>
+    <div class="city-input-row">
+      <input type="text" id="cityInput" value="Düsseldorf" placeholder="Stadt eingeben…" />
+      <button onclick="loadWeather()">🔍</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">Daten via Render.com Backend · Auto-Refresh alle 5 Min · Kostenloses Setup</div>
+
+<script src="script.js"></script>
+</body>
+</html>

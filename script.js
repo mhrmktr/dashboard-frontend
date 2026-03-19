@@ -2,18 +2,12 @@ const BASE_URL = "https://personal-dashboard-backend-m5ur.onrender.com";
 
 function setVal(id, html) {
   var el = document.getElementById(id);
-  if (el) {
-    el.classList.remove("skeleton");
-    el.innerHTML = html;
-  }
+  if (el) { el.classList.remove("skeleton"); el.innerHTML = html; }
 }
 
 function setBadge(id, text, cls) {
   var el = document.getElementById(id);
-  if (el) {
-    el.textContent = text;
-    el.className = "badge " + cls;
-  }
+  if (el) { el.textContent = text; el.className = "badge " + cls; }
 }
 
 function getTime() {
@@ -29,47 +23,62 @@ function apiFetch(path) {
 
 function loadHeizoel() {
   apiFetch("/api/heizoel").then(function(d) {
-    var price = d.price ? d.price : "-";
-    setVal("heizoel-main", '<div class="main-value">' + price + '</div>');
-    setVal("heizoel-sub", '<span class="change neutral">pro 100 Liter</span>');
+    setVal("heizoel-main", '<div class="main-value">' + (d.price || "-") + '</div>');
+    setVal("heizoel-sub", '<span>pro 100 Liter</span>');
     setBadge("badge-heizoel", "Live", "live");
   }).catch(function() {
-    setVal("heizoel-main", '<div class="main-value" style="color:#f85149">Fehler</div>');
+    setVal("heizoel-main", '<div class="main-value" style="color:#f85149;font-size:1em">Fehler</div>');
     setBadge("badge-heizoel", "Fehler", "error");
   });
 }
 
 function loadFX() {
   apiFetch("/api/fx").then(function(d) {
-    var usd = d.USD ? d.USD : "-";
-    var tr = d.TRY ? d.TRY : "-";
+    var usd = d.USD || "-";
+    var tr = d.TRY || "-";
     setVal("usd-main", '<div class="main-value">' + usd + '</div>');
-    setVal("usd-sub", '<span class="change neutral">1 EUR = ' + usd + ' USD</span>');
+    setVal("usd-sub", '1 EUR = ' + usd + ' USD');
     setBadge("badge-usd", "Live", "live");
     setVal("try-main", '<div class="main-value">' + tr + '</div>');
-    setVal("try-sub", '<span class="change neutral">1 EUR = ' + tr + ' TRY</span>');
+    setVal("try-sub", '1 EUR = ' + tr + ' TRY');
     setBadge("badge-try", "Live", "live");
   }).catch(function() {
-    setVal("usd-main", '<div class="main-value" style="color:#f85149">Fehler</div>');
-    setVal("try-main", '<div class="main-value" style="color:#f85149">Fehler</div>');
+    setVal("usd-main", '<div class="main-value" style="color:#f85149;font-size:1em">Fehler</div>');
+    setVal("try-main", '<div class="main-value" style="color:#f85149;font-size:1em">Fehler</div>');
     setBadge("badge-usd", "Fehler", "error");
     setBadge("badge-try", "Fehler", "error");
   });
 }
 
+var icons = {
+  "Clear": "☀️", "Clouds": "☁️", "Rain": "🌧️",
+  "Drizzle": "🌦️", "Thunderstorm": "⛈️", "Snow": "❄️",
+  "Mist": "🌫️", "Fog": "🌫️", "Haze": "🌫️"
+};
+
+function renderWeather(prefix, data) {
+  var temp = data.temp !== null ? data.temp + " C" : "-";
+  var feels = data.feels_like !== null ? data.feels_like + " C" : "-";
+  var humidity = data.humidity || "-";
+  var desc = data.description || "";
+  var icon = icons[data.main] || "🌡️";
+  document.getElementById("icon-" + prefix).textContent = icon;
+  setVal("temp-" + prefix, '<div class="main-value">' + temp + '</div>');
+  setVal("sub-" + prefix, desc + ' · Gefühlt ' + feels + ' · ' + humidity + '% Luftfeuchtigkeit');
+  setBadge("badge-" + prefix, "Live", "live");
+}
+
 function loadWeather() {
-  var city = document.getElementById("cityInput").value || "Duesseldorf";
-  apiFetch("/api/weather?city=" + encodeURIComponent(city)).then(function(d) {
-    var temp = d.main && d.main.temp ? d.main.temp : "-";
-    var feels = d.main && d.main.feels_like ? d.main.feels_like : "-";
-    var humidity = d.main && d.main.humidity ? d.main.humidity : "-";
-    var desc = d.weather && d.weather[0] ? d.weather[0].description : "";
-    setVal("weather-main", '<div class="main-value">' + temp + ' C</div>');
-    setVal("weather-sub", desc + ' - Gefuehlt ' + feels + ' C - Luftfeuchtigkeit ' + humidity + '%');
-    setBadge("badge-weather", "Live", "live");
+  apiFetch("/api/weather/all").then(function(d) {
+    if (d["Jersey City"])   renderWeather("jc",  d["Jersey City"]);
+    if (d["New York City"]) renderWeather("nyc", d["New York City"]);
+    if (d["Wiesbaden"])     renderWeather("wi",  d["Wiesbaden"]);
+    if (d["Mainz"])         renderWeather("mz",  d["Mainz"]);
   }).catch(function() {
-    setVal("weather-main", '<div class="main-value" style="color:#f85149">Fehler</div>');
-    setBadge("badge-weather", "Fehler", "error");
+    ["jc","nyc","wi","mz"].forEach(function(p) {
+      setVal("temp-" + p, '<div class="main-value" style="color:#f85149;font-size:1em">Fehler</div>');
+      setBadge("badge-" + p, "Fehler", "error");
+    });
   });
 }
 

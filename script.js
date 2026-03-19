@@ -1,5 +1,5 @@
 // ✅ Deine echte API-URL von Render
-const BASE_URL = "https://personal-dashboard-backend-d8xz.onrender.com";
+const BASE_URL = "https://personal-dashboard-backend-m5ur.onrender.com";
 
 // ✅ Helper für API Calls
 async function fetchData(endpoint) {
@@ -39,18 +39,4 @@ async function loadWeather() {
   if (data.main) {
     el.innerText = `${data.main.temp}°C – ${data.weather[0].description}`;
   } else {
-    el.innerText = "Keine Daten";
-  }
-}
-
-// ✅ Erste Daten laden
-loadHeizoel();
-loadFX();
-loadWeather();
-
-// ✅ Alle 5 Minuten aktualisieren
-setInterval(() => {
-  loadHeizoel();
-  loadFX();
-}, 5 * 60 * 1000);
-``
+    el

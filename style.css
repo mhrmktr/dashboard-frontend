@@ -110,6 +110,7 @@ header h1 {
 .card.gold::before        { background: linear-gradient(90deg, #f5c518, #e8a000); }
 .card.bitcoin::before     { background: linear-gradient(90deg, #f7931a, #e67e00); }
 .card.f1::before          { background: linear-gradient(90deg, #e10600, #b30000); }
+.card.red::before         { background: linear-gradient(90deg, #e85d4a, #c0392b); }
 
 .card-header {
   display: flex;

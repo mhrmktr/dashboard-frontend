@@ -103,15 +103,48 @@ var icons = {
   "Mist": "🌫️", "Fog": "🌫️", "Haze": "🌫️"
 };
 
+function windDir(deg) {
+  var dirs = ["N","NO","O","SO","S","SW","W","NW"];
+  return dirs[Math.round(deg / 45) % 8];
+}
+
+function formatTime(unix, offset) {
+  var d = new Date((unix + offset) * 1000);
+  var h = d.getUTCHours().toString().padStart(2,"0");
+  var m = d.getUTCMinutes().toString().padStart(2,"0");
+  return h + ":" + m;
+}
+
 function renderWeather(prefix, data) {
-  var temp = data.temp !== null ? data.temp + " C" : "-";
-  var feels = data.feels_like !== null ? data.feels_like + " C" : "-";
+  var temp = data.temp !== null ? Math.round(data.temp) + "°C" : "-";
+  var tmin = data.temp_min !== null ? Math.round(data.temp_min) + "°C" : "-";
+  var tmax = data.temp_max !== null ? Math.round(data.temp_max) + "°C" : "-";
+  var feels = data.feels_like !== null ? Math.round(data.feels_like) + "°C" : "-";
   var humidity = data.humidity || "-";
   var desc = data.description || "";
   var icon = icons[data.main] || "🌡️";
+  var wind = Math.round(data.wind_speed) + " km/h " + windDir(data.wind_deg);
+  var sunrise = data.sunrise ? formatTime(data.sunrise, data.timezone_offset) : "-";
+  var sunset = data.sunset ? formatTime(data.sunset, data.timezone_offset) : "-";
+  var now = new Date();
+  var localTime = new Date(now.getTime() + (data.timezone_offset + now.getTimezoneOffset() * 60) * 1000);
+  var lh = localTime.getUTCHours().toString().padStart(2,"0");
+  var lm = localTime.getUTCMinutes().toString().padStart(2,"0");
+  var localStr = lh + ":" + lm + " Uhr (lokal)";
+
   document.getElementById("icon-" + prefix).textContent = icon;
   setVal("temp-" + prefix, '<div class="main-value">' + temp + '</div>');
-  setVal("sub-" + prefix, desc + ' · Gefühlt ' + feels + ' · ' + humidity + '%');
+  setVal("sub-" + prefix,
+    '<div class="weather-detail-grid">' +
+    '<span>☁️ ' + desc + '</span>' +
+    '<span>🌡️ ' + tmin + ' / ' + tmax + '</span>' +
+    '<span>💧 Gefühlt ' + feels + '</span>' +
+    '<span>💦 Luftfeuchte ' + humidity + '%</span>' +
+    '<span>💨 Wind ' + wind + '</span>' +
+    '<span>🌅 ' + sunrise + ' · 🌇 ' + sunset + '</span>' +
+    '<span>🕐 ' + localStr + '</span>' +
+    '</div>'
+  );
   setBadge("badge-" + prefix, "Live", "live");
 }
 

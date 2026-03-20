@@ -18,6 +18,7 @@
   </div>
 </header>
 
+<!-- MARKTDATEN -->
 <div class="section-title">Marktdaten</div>
 <div class="grid">
 
@@ -48,8 +49,29 @@
     <div id="try-sub" class="sub-value"></div>
   </div>
 
+  <!-- GOLD -->
+  <div class="card gold">
+    <div class="card-header">
+      <div class="card-title">🥇 Gold (XAU/USD)</div>
+      <span class="badge loading" id="badge-gold">Lädt...</span>
+    </div>
+    <div id="gold-main" class="skeleton"></div>
+    <div id="gold-changes" class="changes-grid"></div>
+  </div>
+
+  <!-- BITCOIN -->
+  <div class="card bitcoin">
+    <div class="card-header">
+      <div class="card-title">₿ Bitcoin (BTC/USD)</div>
+      <span class="badge loading" id="badge-btc">Lädt...</span>
+    </div>
+    <div id="btc-main" class="skeleton"></div>
+    <div id="btc-changes" class="changes-grid"></div>
+  </div>
+
 </div>
 
+<!-- WETTER -->
 <div class="section-title">Wetter</div>
 <div class="grid">
 
@@ -111,7 +133,38 @@
 
 </div>
 
-<div class="footer">Daten via Render.com Backend · Auto-Refresh alle 5 Min · Kostenloses Setup</div>
+<!-- FORMEL 1 -->
+<div class="section-title">Formel 1</div>
+<div class="grid grid-f1">
+
+  <div class="card f1">
+    <div class="card-header">
+      <div class="card-title">🏁 Letztes Rennen</div>
+      <span class="badge loading" id="badge-f1race">Lädt...</span>
+    </div>
+    <div id="f1-race-name" class="f1-subtitle"></div>
+    <div id="f1-race" class="f1-list skeleton"></div>
+  </div>
+
+  <div class="card f1">
+    <div class="card-header">
+      <div class="card-title">🏆 Fahrerwertung</div>
+      <span class="badge loading" id="badge-f1driver">Lädt...</span>
+    </div>
+    <div id="f1-driver" class="f1-list skeleton"></div>
+  </div>
+
+  <div class="card f1">
+    <div class="card-header">
+      <div class="card-title">🏗️ Konstrukteurswertung</div>
+      <span class="badge loading" id="badge-f1constructor">Lädt...</span>
+    </div>
+    <div id="f1-constructor" class="f1-list skeleton"></div>
+  </div>
+
+</div>
+
+<div class="footer">Daten via Render.com · CoinGecko · Ergast F1 API · Auto-Refresh alle 5 Min</div>
 
 <script src="script.js"></script>
 </body>

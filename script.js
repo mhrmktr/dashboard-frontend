@@ -52,16 +52,38 @@ function loadFX() {
   });
 }
 
-// ── Gold ──
+// ── Gold (via CoinGecko - kostenlos, kein Key) ──
 function loadGold() {
-  var url = "https://api.coingecko.com/api/v3/simple/price?ids=gold&vs_currencies=usd&include_24hr_change=true";
-  // Gold via CoinGecko not available, use metals-api alternative
-  // Using open.er-api for a free fallback with XAU
-  apiFetch("https://api.frankfurter.app/latest?from=XAU&to=USD").then(function(d) {
-    var price = d.rates && d.rates.USD ? Math.round(d.rates.USD) : null;
-    if (!price) throw new Error("no price");
+  var url = "https://api.coingecko.com/api/v3/simple/price?ids=gold&vs_currencies=usd&include_24hr_change=true&include_7d_change=true&include_30d_change=true";
+  // CoinGecko hat kein Gold direkt - wir nutzen den Preis-Endpunkt für XAU via coins
+  // Stattdessen: CoinGecko "gold" commodity token oder Frankfurter als Fallback
+  apiFetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=tether-gold,pax-gold&order=market_cap_desc").then(function(d) {
+    // PAXG oder XAUT = 1 oz Gold Token, Preis entspricht Goldpreis
+    var gold = null;
+    for (var i = 0; i < d.length; i++) {
+      if (d[i].id === "pax-gold" || d[i].id === "tether-gold") {
+        gold = d[i];
+        break;
+      }
+    }
+    if (!gold) throw new Error("no gold");
+
+    var price = Math.round(gold.current_price);
+    var change24h = gold.price_change_percentage_24h;
+    var change7d = gold.price_change_percentage_7d_in_currency;
+    var change30d = gold.price_change_percentage_30d_in_currency;
+
     setVal("gold-main", '<div class="main-value">$' + price.toLocaleString() + '</div>');
-    setVal("gold-changes", '<div class="sub-value">Preis pro Unze (oz)</div>');
+
+    function changeItem(label, val) {
+      if (val === null || val === undefined) return '<div class="change-item"><div class="change-label">' + label + '</div><div class="change-val">–</div></div>';
+      var cls = val >= 0 ? "up" : "down";
+      var sign = val >= 0 ? "+" : "";
+      return '<div class="change-item"><div class="change-label">' + label + '</div><div class="change-val ' + cls + '">' + sign + val.toFixed(1) + '%</div></div>';
+    }
+
+    var html = changeItem("24H", change24h) + changeItem("7T", change7d) + changeItem("30T", change30d);
+    setVal("gold-changes", html);
     setBadge("badge-gold", "Live", "live");
   }).catch(function() {
     setVal("gold-main", '<div class="main-value" style="color:#f85149;font-size:1em">Fehler</div>');
@@ -69,17 +91,17 @@ function loadGold() {
   });
 }
 
-// ── Bitcoin ──
+// ── Bitcoin (via CoinGecko - kostenlos, kein Key) ──
 function loadBTC() {
   var url = "https://api.coingecko.com/api/v3/coins/bitcoin?localization=false&tickers=false&community_data=false&developer_data=false";
   apiFetch(url).then(function(d) {
     var price = d.market_data.current_price.usd;
     var changes = {
-      "1T": d.market_data.price_change_percentage_24h,
-      "1W": d.market_data.price_change_percentage_7d,
-      "1M": d.market_data.price_change_percentage_30d,
-      "6M": d.market_data.price_change_percentage_200d,
-      "1J": d.market_data.price_change_percentage_1y
+      "1T":  d.market_data.price_change_percentage_24h,
+      "7T":  d.market_data.price_change_percentage_7d,
+      "30T": d.market_data.price_change_percentage_30d,
+      "6M":  d.market_data.price_change_percentage_200d,
+      "1J":  d.market_data.price_change_percentage_1y
     };
 
     setVal("btc-main", '<div class="main-value">$' + Math.round(price).toLocaleString() + '</div>');
@@ -135,7 +157,9 @@ function loadWeather() {
   });
 }
 
-// ── Formel 1 ──
+// ── Formel 1 (via Jolpica - offizieller Ergast-Nachfolger) ──
+var F1_BASE = "https://api.jolpi.ca/ergast/f1";
+
 function posClass(p) {
   if (p === 1) return "top1";
   if (p === 2) return "top2";
@@ -148,8 +172,8 @@ function f1Row(pos, name, stat) {
 }
 
 function loadF1() {
-  // Last race results
-  apiFetch("https://ergast.com/api/f1/current/last/results.json").then(function(d) {
+  // Letztes Rennen
+  apiFetch(F1_BASE + "/current/last/results.json?limit=10").then(function(d) {
     var race = d.MRData.RaceTable.Races[0];
     if (!race) throw new Error("no race");
     document.getElementById("f1-race-name").textContent = race.raceName + " " + race.season;
@@ -168,9 +192,11 @@ function loadF1() {
     setBadge("badge-f1race", "Fehler", "error");
   });
 
-  // Driver standings
-  apiFetch("https://ergast.com/api/f1/current/driverStandings.json").then(function(d) {
-    var standings = d.MRData.StandingsTable.StandingsLists[0].DriverStandings.slice(0, 10);
+  // Fahrerwertung
+  apiFetch(F1_BASE + "/current/driverStandings.json?limit=10").then(function(d) {
+    var list = d.MRData.StandingsTable.StandingsLists[0];
+    if (!list) throw new Error("no standings");
+    var standings = list.DriverStandings.slice(0, 10);
     var html = "";
     for (var i = 0; i < standings.length; i++) {
       var s = standings[i];
@@ -184,9 +210,11 @@ function loadF1() {
     setBadge("badge-f1driver", "Fehler", "error");
   });
 
-  // Constructor standings
-  apiFetch("https://ergast.com/api/f1/current/constructorStandings.json").then(function(d) {
-    var standings = d.MRData.StandingsTable.StandingsLists[0].ConstructorStandings.slice(0, 10);
+  // Konstrukteurswertung
+  apiFetch(F1_BASE + "/current/constructorStandings.json?limit=10").then(function(d) {
+    var list = d.MRData.StandingsTable.StandingsLists[0];
+    if (!list) throw new Error("no standings");
+    var standings = list.ConstructorStandings.slice(0, 10);
     var html = "";
     for (var i = 0; i < standings.length; i++) {
       var s = standings[i];

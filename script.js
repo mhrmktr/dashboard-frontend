@@ -53,71 +53,43 @@ function loadFX() {
 }
 
 // ── Gold (via CoinGecko - kostenlos, kein Key) ──
+function changeItem(label, val) {
+  if (val === null || val === undefined || isNaN(val)) {
+    return '<div class="change-item"><div class="change-label">' + label + '</div><div class="change-val">–</div></div>';
+  }
+  var cls = val >= 0 ? "up" : "down";
+  var sign = val >= 0 ? "+" : "";
+  return '<div class="change-item"><div class="change-label">' + label + '</div><div class="change-val ' + cls + '">' + sign + parseFloat(val).toFixed(1) + '%</div></div>';
+}
+
+function renderAsset(mainId, changesId, badgeId, price, d, symbol) {
+  setVal(mainId, '<div class="main-value">' + symbol + Math.round(price).toLocaleString() + '</div>');
+  var html = changeItem("24H", d.change_24h)
+           + changeItem("7T",  d.change_7d)
+           + changeItem("1M",  d.change_1m)
+           + changeItem("6M",  d.change_6m)
+           + changeItem("YTD", d.change_ytd)
+           + changeItem("5J",  d.change_5y);
+  setVal(changesId, html);
+  setBadge(badgeId, "Live", "live");
+}
+
+// ── Gold (via Backend + GoldAPI) ──
 function loadGold() {
-  var url = "https://api.coingecko.com/api/v3/simple/price?ids=gold&vs_currencies=usd&include_24hr_change=true&include_7d_change=true&include_30d_change=true";
-  // CoinGecko hat kein Gold direkt - wir nutzen den Preis-Endpunkt für XAU via coins
-  // Stattdessen: CoinGecko "gold" commodity token oder Frankfurter als Fallback
-  apiFetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=tether-gold,pax-gold&order=market_cap_desc").then(function(d) {
-    // PAXG oder XAUT = 1 oz Gold Token, Preis entspricht Goldpreis
-    var gold = null;
-    for (var i = 0; i < d.length; i++) {
-      if (d[i].id === "pax-gold" || d[i].id === "tether-gold") {
-        gold = d[i];
-        break;
-      }
-    }
-    if (!gold) throw new Error("no gold");
-
-    var price = Math.round(gold.current_price);
-    var change24h = gold.price_change_percentage_24h;
-    var change7d = gold.price_change_percentage_7d_in_currency;
-    var change30d = gold.price_change_percentage_30d_in_currency;
-
-    setVal("gold-main", '<div class="main-value">$' + price.toLocaleString() + '</div>');
-
-    function changeItem(label, val) {
-      if (val === null || val === undefined) return '<div class="change-item"><div class="change-label">' + label + '</div><div class="change-val">–</div></div>';
-      var cls = val >= 0 ? "up" : "down";
-      var sign = val >= 0 ? "+" : "";
-      return '<div class="change-item"><div class="change-label">' + label + '</div><div class="change-val ' + cls + '">' + sign + val.toFixed(1) + '%</div></div>';
-    }
-
-    var html = changeItem("24H", change24h) + changeItem("7T", change7d) + changeItem("30T", change30d);
-    setVal("gold-changes", html);
-    setBadge("badge-gold", "Live", "live");
+  apiFetch(BASE_URL + "/api/gold").then(function(d) {
+    if (d.error) throw new Error(d.error);
+    renderAsset("gold-main", "gold-changes", "badge-gold", d.price, d, "$");
   }).catch(function() {
     setVal("gold-main", '<div class="main-value" style="color:#f85149;font-size:1em">Fehler</div>');
     setBadge("badge-gold", "Fehler", "error");
   });
 }
 
-// ── Bitcoin (via CoinGecko - kostenlos, kein Key) ──
+// ── Bitcoin (via Backend + CoinGecko) ──
 function loadBTC() {
-  var url = "https://api.coingecko.com/api/v3/coins/bitcoin?localization=false&tickers=false&community_data=false&developer_data=false";
-  apiFetch(url).then(function(d) {
-    var price = d.market_data.current_price.usd;
-    var changes = {
-      "1T":  d.market_data.price_change_percentage_24h,
-      "7T":  d.market_data.price_change_percentage_7d,
-      "30T": d.market_data.price_change_percentage_30d,
-      "6M":  d.market_data.price_change_percentage_200d,
-      "1J":  d.market_data.price_change_percentage_1y
-    };
-
-    setVal("btc-main", '<div class="main-value">$' + Math.round(price).toLocaleString() + '</div>');
-
-    var html = "";
-    var keys = Object.keys(changes);
-    for (var i = 0; i < keys.length; i++) {
-      var k = keys[i];
-      var v = changes[k];
-      var cls = v >= 0 ? "up" : "down";
-      var sign = v >= 0 ? "+" : "";
-      var val = v !== null ? sign + v.toFixed(1) + "%" : "–";
-      html += '<div class="change-item"><div class="change-label">' + k + '</div><div class="change-val ' + cls + '">' + val + '</div></div>';
-    }
-    setVal("btc-changes", html);
-    setBadge("badge-btc", "Live", "live");
+  apiFetch(BASE_URL + "/api/btc").then(function(d) {
+    if (d.error) throw new Error(d.error);
+    renderAsset("btc-main", "btc-changes", "badge-btc", d.price, d, "$");
   }).catch(function() {
     setVal("btc-main", '<div class="main-value" style="color:#f85149;font-size:1em">Fehler</div>');
     setBadge("badge-btc", "Fehler", "error");

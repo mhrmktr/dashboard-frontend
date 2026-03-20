@@ -262,3 +262,32 @@ header h1 {
   font-size: 0.72em;
   color: #3d444d;
 }
+
+/* ── Weather Detail Grid ── */
+.weather-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 10px;
+  margin-top: 8px;
+  font-size: 0.78em;
+  color: #7d8590;
+  line-height: 1.5;
+}
+
+.weather-detail-grid span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Wetter Gruppen */
+.weather-group-title {
+  font-size: 0.7em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #4d5561;
+  margin-bottom: 8px;
+  margin-top: 16px;
+  padding-left: 2px;
+}

@@ -69,13 +69,17 @@ header h1 {
   letter-spacing: 0.08em;
   color: #6e7681;
   margin-bottom: 12px;
-  margin-top: 24px;
+  margin-top: 28px;
 }
 
 .grid {
   display: grid;
   gap: 16px;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.grid-f1 {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
 .card {
@@ -98,11 +102,14 @@ header h1 {
   border-radius: 12px 12px 0 0;
 }
 
-.card.blue::before   { background: linear-gradient(90deg, #388bfd, #1f6feb); }
-.card.green::before  { background: linear-gradient(90deg, #3fb950, #2ea043); }
-.card.orange::before { background: linear-gradient(90deg, #f0883e, #d29922); }
-.card.purple::before { background: linear-gradient(90deg, #bc8cff, #8957e5); }
-.card.teal::before   { background: linear-gradient(90deg, #39d3bb, #1a9e8f); }
+.card.blue::before        { background: linear-gradient(90deg, #388bfd, #1f6feb); }
+.card.green::before       { background: linear-gradient(90deg, #3fb950, #2ea043); }
+.card.orange::before      { background: linear-gradient(90deg, #f0883e, #d29922); }
+.card.purple::before      { background: linear-gradient(90deg, #bc8cff, #8957e5); }
+.card.teal::before        { background: linear-gradient(90deg, #39d3bb, #1a9e8f); }
+.card.gold::before        { background: linear-gradient(90deg, #f5c518, #e8a000); }
+.card.bitcoin::before     { background: linear-gradient(90deg, #f7931a, #e67e00); }
+.card.f1::before          { background: linear-gradient(90deg, #e10600, #b30000); }
 
 .card-header {
   display: flex;
@@ -137,7 +144,7 @@ header h1 {
   font-weight: 700;
   color: #e6edf3;
   line-height: 1.1;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .sub-value {
@@ -147,6 +154,38 @@ header h1 {
   margin-top: 6px;
 }
 
+/* Changes grid for Gold/BTC */
+.changes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.change-item {
+  background: #0d1117;
+  border-radius: 6px;
+  padding: 5px 8px;
+  text-align: center;
+}
+
+.change-label {
+  font-size: 0.68em;
+  color: #6e7681;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.change-val {
+  font-size: 0.85em;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.change-val.up   { color: #3fb950; }
+.change-val.down { color: #f85149; }
+
+/* Weather */
 .weather-row {
   display: flex;
   align-items: center;
@@ -156,6 +195,54 @@ header h1 {
 
 .weather-icon { font-size: 2.6em; line-height: 1; }
 
+/* F1 */
+.f1-subtitle {
+  font-size: 0.8em;
+  color: #7d8590;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+.f1-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.f1-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  font-size: 0.82em;
+  transition: background 0.15s;
+}
+
+.f1-row:hover { background: #21262d; }
+
+.f1-pos {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #21262d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75em;
+  font-weight: 700;
+  color: #7d8590;
+  flex-shrink: 0;
+}
+
+.f1-pos.top1 { background: #f5c518; color: #000; }
+.f1-pos.top2 { background: #9ea5b0; color: #000; }
+.f1-pos.top3 { background: #cd7f32; color: #000; }
+
+.f1-name { flex: 1; color: #e6edf3; font-weight: 500; }
+.f1-stat { color: #7d8590; font-size: 0.9em; }
+
+/* Skeleton */
 .skeleton {
   height: 2.2em;
   background: linear-gradient(90deg, #21262d 25%, #30363d 50%, #21262d 75%);

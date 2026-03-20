@@ -21,6 +21,25 @@ function apiFetch(url) {
   });
 }
 
+// ── Bauzins (Bundesbank) ──
+function loadBauzins() {
+  apiFetch(BASE_URL + "/api/bauzins").then(function(d) {
+    if (d.error) throw new Error(d.error);
+    setVal("bauzins-main", '<div class="main-value">' + d.rate + ' %</div>');
+    setVal("bauzins-sub", 'Stand: ' + d.period + ' · Effektivzins 10J');
+    var html = changeItem("1M",  d.change_1m)
+             + changeItem("6M",  d.change_6m)
+             + changeItem("YTD", d.change_ytd)
+             + changeItem("1J",  d.change_1y)
+             + changeItem("5J",  d.change_5y);
+    setVal("bauzins-changes", html);
+    setBadge("badge-bauzins", "Live", "live");
+  }).catch(function() {
+    setVal("bauzins-main", '<div class="main-value" style="color:#f85149;font-size:1em">Fehler</div>');
+    setBadge("badge-bauzins", "Fehler", "error");
+  });
+}
+
 // ── Heizöl ──
 function loadHeizoel() {
   apiFetch(BASE_URL + "/api/heizoel").then(function(d) {
@@ -237,6 +256,7 @@ function loadF1() {
 function refreshAll() {
   var icon = document.getElementById("refreshIcon");
   if (icon) icon.classList.add("spinning");
+  loadBauzins();
   loadHeizoel();
   loadFX();
   loadGold();

@@ -158,7 +158,7 @@ header h1 {
 .changes-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
+  gap: 5px;
   margin-top: 10px;
 }
 
